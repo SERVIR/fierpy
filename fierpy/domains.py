@@ -1,4 +1,5 @@
 import numpy as np
+import pyproj
 from collections.abc import Iterable
 
 
@@ -6,7 +7,7 @@ class Domain:
     """Class for managing the spatial domain of a model run.
     """
 
-    def __init__(self, bbox: Iterable, resolution: float = 0.25,start_time: str = "1981-01-01",end_time: str = "2020-12-31"):
+    def __init__(self, bbox: Iterable, resolution: float = 0.25,start_time: str = "1981-01-01",end_time: str = "2020-12-31",crs: str = "EPSG:4326"):
         if np.any((np.array(bbox) % resolution) != 0):
             self.bbox = _round_out(bbox,resolution)
         else:
