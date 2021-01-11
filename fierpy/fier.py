@@ -66,21 +66,21 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
     rotated[non_masked_idx,:] = _ortho_rotation(eof_components[non_masked_idx,:])
 
     # project the original time series data on the rotated eofs
-    projected_pcs = np.dot(centered[:,non_masked_idx], rotated[non_maked,:])
+    projected_pcs = np.dot(centered[:,non_masked_idx], rotated[non_masked_idx,:])
 
-    # reshape the rotated eofs to a 3d array of [y,x,t]
+    # reshape the rotated eofs to a 3d array of [y,x,c]
     spatial_rotated = rotated.reshape(spatial_shape+(n_modes,))
 
     # structure the spatial and temporal reof components in a Dataset
     reof_ds = xr.Dataset(
         {
-            "spatial_modes": (["y","x","mode"],spatial_rotated),
+            "spatial_modes": (["lat","lon","mode"],spatial_rotated),
             "temporal_modes":(["time","mode"],projected_pcs),
-            "center": (["y","x"],center.values.reshape(spatial_shape))
+            "center": (["lat","lon"],center.values.reshape(spatial_shape))
         },
         coords = {
-            "lon":(["x"],stack.lon),
-            "lat":(["y"],stack.lat),
+            "lon":(["lon"],stack.lon),
+            "lat":(["lat"],stack.lat),
             "time":stack.time,
             "mode": np.arange(n_modes)+1
         }
@@ -172,7 +172,7 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
 
     spatial_test_flat = xr.DataArray(
         spatial_test.values.reshape(shape2d),
-        coords = [np.arange(shape2d[1]),synth_test.time],
+        coords = [np.arange(shape2d[1]),spatial_test.time],
         dims=['space','time']
     )
 
