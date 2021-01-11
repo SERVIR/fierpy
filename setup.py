@@ -4,8 +4,8 @@ from setuptools import setup
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setup(name='hydrafloods',
-    version='0.3.4',
+setup(name='fierpy',
+    version='0.0.1',
     description='Python implementation of the Forecasting Inundation Extents using REOF method',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -13,13 +13,9 @@ setup(name='hydrafloods',
     packages=setuptools.find_packages(),
     author='Kel Markert',
     author_email='kel.markert@gmail.com',
-    license='GNU GPL v3.0',
+    license='MIT',
     zip_safe=False,
     include_package_data=True,
-    entry_points={
-    'console_scripts': [
-        'hydrafloods = hydrafloods.hfcli:main',
-    ]},
     install_requires=[
         'numpy',
         'pandas',
