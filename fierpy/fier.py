@@ -172,8 +172,8 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
 
     spatial_test_flat = xr.DataArray(
         spatial_test.values.reshape(shape2d),
-        coords = [np.arange(shape2d[1]),spatial_test.time],
-        dims=['space','time']
+        coords = [spatial_test.time,np.arange(shape2d[1])],
+        dims=['time','space']
     )
 
     non_masked_idx= np.where(np.logical_not(np.isnan(spatial_test_flat[0,:])))[0]
@@ -181,7 +181,7 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
     modes = reof_ds.mode.values
 
     fit_dict = dict()
-    dict_keys = ['fit_r2','pred_correlation','pred_rmse']
+    dict_keys = ['fit_r2','pred_r','pred_rmse']
 
     for mode in modes:
 
@@ -200,32 +200,30 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
 
             synth_test_flat = xr.DataArray(
                 synth_test.values.reshape(shape2d),
-                coords = [np.arange(shape2d[1]),synth_test.time],
-                dims=['space','time']
+                coords = [synth_test.time,np.arange(shape2d[1])],
+                dims=['time','space']
             )
 
             # calculate statistics
             # calculate the stats of fitting on a test subsample
             temporal_r2 = metrics.r2_score(y_pred,y_test_mode)
-            temporal_r2 = -999 if temporal_r2 < 0 else np.sqrt(temporal_r2)
+            temporal_r = -999 if temporal_r2 < 0 else np.sqrt(temporal_r2)
 
             # check the synthesis stats comapared to observed data
-            space_correlation = metrics.r2_score(
+            space_r2 = metrics.r2_score(
                 spatial_test_flat[:,non_masked_idx],
                 synth_test_flat[:,non_masked_idx],
-                multioutput="variance_weighted"
             )
-            space_correlation = -999 if space_correlation < 0 else np.sqrt(space_correlation)
+            space_r= -999 if space_r2 < 0 else np.sqrt(space_r2)
 
             space_rmse = metrics.mean_squared_error(
                 spatial_test_flat[:,non_masked_idx],
                 synth_test_flat[:,non_masked_idx],
-                multioutput="variance_weighted",
                 squared=False
             )
 
             # pack the resulting statistics in dictionary for the loop
-            stats = [temporal_r2,space_correlation,space_rmse]
+            stats = [temporal_r2,space_r,space_rmse]
             loop_dict = {f"mode{mode}_order{order}_{k}":stats[i] for i,k in enumerate(dict_keys)}
             # merge the loop dictionary with the larger one
             fit_dict = {**fit_dict,**loop_dict}
