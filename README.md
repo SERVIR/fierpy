@@ -31,7 +31,7 @@ import fierpy
 ds = xr.open_dataset("sentine1.nc")
 
 # apply rotated eof process
-reof_ds = fierpy.reof(ds,n_modes=4)
+reof_ds = fierpy.reof(ds.VV,n_modes=4)
 
 # get streamflow data from GeoGLOWS
 # select the days we have observations
