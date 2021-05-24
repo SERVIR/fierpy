@@ -6,9 +6,11 @@ Based off of the methods from [Chang et al., 2020](https://doi.org/10.1016/j.rse
 ## Installation
 
 ```bash
-$ conda create -n fier -c conda-forge python=3.8 numpy scipy xarray pandas sckit-learn eofs geoglows
+$ conda create -n fier -c conda-forge python=3.8 jupyter kernda netcdf4 qt pyqt rioxarray numpy scipy xarray pandas scikit-learn eofs geoglowsy
 
-$ pip install git:https://github.com/servir/fierpy.git
+$ conda activate fier
+
+$ pip install git+https://github.com/servir/fierpy.git
 ```
 
 ### Requirements
