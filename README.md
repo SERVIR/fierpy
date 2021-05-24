@@ -6,7 +6,7 @@ Based off of the methods from [Chang et al., 2020](https://doi.org/10.1016/j.rse
 ## Installation
 
 ```bash
-$ conda create -n fier -c conda-forge python=3.8 jupyter kernda netcdf4 qt pyqt rioxarray numpy scipy xarray pandas scikit-learn eofs geoglowsy
+$ conda create -n fier -c conda-forge python=3.8 jupyter kernda netcdf4 qt pyqt rioxarray numpy scipy xarray pandas scikit-learn eofs geoglows
 
 $ conda activate fier
 
@@ -16,7 +16,7 @@ $ pip install git+https://github.com/servir/fierpy.git
 To Install in OpenSARlab:
 
 ```bash
-$ conda create --prefix /home/jovyan/.local/envs/fier python=3.8 netcdf4 qt pyqt rioxarray numpy scipy xarray pandas scikit-learn eofs geoglowsy jupyter kernda
+$ conda create --prefix /home/jovyan/.local/envs/fier python=3.8 netcdf4 qt pyqt rioxarray numpy scipy xarray pandas scikit-learn eofs geoglows jupyter kernda
 
 $ conda activate fier
 
