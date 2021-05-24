@@ -13,6 +13,20 @@ $ conda activate fier
 $ pip install git+https://github.com/servir/fierpy.git
 ```
 
+To Install in OpenSARlab:
+
+```bash
+$ conda create --prefix /home/jovyan/.local/envs/fier python=3.8 netcdf4 qt pyqt rioxarray numpy scipy xarray pandas scikit-learn eofs geoglowsy jupyter kernda
+
+$ conda activate fier
+
+$ pip install git+https://github.com/servir/fierpy.git
+
+$ /home/jovyan/.local/envs/fier/bin/python -m ipykernel install --user --name fier
+
+$ conda run -n fier kernda /home/jovyan/.local/share/jupyter/kernels/fier/kernel.json --env-dir /home/jovyan/.local/envs/fier -o
+```
+
 ### Requirements
  * numpy
  * xarray
