@@ -23,7 +23,7 @@ setup(name='fierpy',
         'scikit-learn>=0.24',
         'geoglows',
         'eofs',
-        'netcdf4'
+        'netcdf4',
         'pyqt'
     ],
     extras_require = {
