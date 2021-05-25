@@ -2,10 +2,14 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 import rioxarray
+import matplotlib.pyplot as plt
+import os
+
 from eofs.xarray import Eof
 from geoglows import streamflow
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
+
 
 
 def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 4) -> xr.Dataset:
@@ -33,14 +37,18 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
         coords = [stack.time,np.arange(shape2d[1])],
         dims=['time','space']
     )
-
-    # find the temporal mean for each pixel
+    #print(da_flat)
+    
+        
+    ## find the temporal mean for each pixel
     center = da_flat.mean(dim='time')
-
+    
     centered = da_flat - center
+               
 
     # get an eof solver object
     # explicitly set center to false since data is already
+    #solver = Eof(centered,center=False)
     solver = Eof(centered,center=False)
 
     # check if the n_modes keyword is set to a realistic value
@@ -154,15 +162,22 @@ def match_dates(original: xr.DataArray, matching: xr.DataArray) -> xr.DataArray:
     # return the DataArray with only rows that match dates
     return original.where(original.time.isin(matching.time),drop=True)
 
-def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, train_size: float = 0.7, random_state: int = 0):
+def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, train_size: float = 0.7, random_state: int = 0, out_path='model_path'):
     """Function to fit multiple polynomial curves on different temporal modes and test results
 
     """
 
+    if not os.path.exists(out_path):
+       os.mkdir(out_path)
+    
     X = q_df
     y = reof_ds.temporal_modes
 
+    # ---- Randomly split data into 2 groups -----
     X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_size, random_state=random_state)
+
+    print(X_train)
+    print(X_test)
 
     spatial_test = stack.where(stack.time.isin(y_test.time),drop=True)
 
@@ -179,12 +194,15 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
     non_masked_idx= np.where(np.logical_not(np.isnan(spatial_test_flat[0,:])))[0]
 
     modes = reof_ds.mode.values
+    #print(modes)
+
 
     fit_dict = dict()
     dict_keys = ['fit_r2','pred_r','pred_rmse']
 
     for mode in modes:
 
+        print(mode)
         y_train_mode = y_train.sel(mode=mode)
         y_test_mode = y_test.sel(mode=mode)
 
@@ -193,20 +211,31 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
             # apply polynomial fitting
             c = np.polyfit(X_train,y_train_mode,deg=order)
             f = np.poly1d(c)
+            np.save(out_path+'\poly'+f'{mode:02}'+'_deg'+f'{order:02}'+'.npy', f)
+
+            #plt.scatter(X_train,y_train_mode)
+            #plt.show()
 
             y_pred = f(X_test)
 
-            synth_test = synthesize(reof_ds,X_test,f,mode=mode)
+            synth_test = synthesize(reof_ds,X_test,f,mode=mode)                      
+             
 
             synth_test_flat = xr.DataArray(
                 synth_test.values.reshape(shape2d),
                 coords = [synth_test.time,np.arange(shape2d[1])],
                 dims=['time','space']
             )
+            
+            
+            
+            
 
             # calculate statistics
             # calculate the stats of fitting on a test subsample
-            temporal_r2 = metrics.r2_score(y_pred,y_test_mode)
+            #temporal_r2 = metrics.r2_score(y_pred,y_test_mode)
+            temporal_r2 = metrics.r2_score(y_test_mode, y_pred)
+
             temporal_r = -999 if temporal_r2 < 0 else np.sqrt(temporal_r2)
 
             # check the synthesis stats comapared to observed data
@@ -223,12 +252,41 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
             )
 
             # pack the resulting statistics in dictionary for the loop
-            stats = [temporal_r2,space_r,space_rmse]
+            #stats = [temporal_r2,space_r,space_rmse]
+            stats = [temporal_r2, temporal_r, space_rmse]
             loop_dict = {f"mode{mode}_order{order}_{k}":stats[i] for i,k in enumerate(dict_keys)}
             # merge the loop dictionary with the larger one
             fit_dict = {**fit_dict,**loop_dict}
 
-    return fit_dict
+    #return fit_dict
+    return 
+
+
+def synthesize_indep(reof_ds: xr.Dataset, q_df: xr.DataArray, model_mode_order, model_path='.\\model_path\\'):
+    """Function to synthesize data at time of interest and output as DataArray
+   
+    """
+    mode_list=list(model_mode_order)
+    for num_mode in mode_list:
+        #for order in range(1,4):
+             
+             f = np.poly1d(np.load(model_path+'\poly'+'{num:0>2}'.format(num=str(num_mode))+'_deg'+'{num:0>2}'.format(num=model_mode_order[str(num_mode)])+'.npy'))
+             #print('{model_mode_order[str(mode)]:0>2}'+'.npy')
+             
+             
+             y_vals = xr.apply_ufunc(f, q_df)
+             print(y_vals)
+             
+             synth = y_vals * reof_ds.spatial_modes.sel(mode=int(num_mode)) # + reof_ds.center
+             
+             synth = synth.astype(np.float32).drop("mode").sortby("time")
+             
+             
+             
+             return synth
+             
+        
+           
 
 
 def synthesize(reof_ds: xr.Dataset, q_df: xr.DataArray, polynomial: np.poly1d, mode: int = 1) -> xr.DataArray:
@@ -241,18 +299,22 @@ def synthesize(reof_ds: xr.Dataset, q_df: xr.DataArray, polynomial: np.poly1d, m
         polynomial (np.poly1d):
         mode (int, optional):
 
+
     returns:
         xr.DataArray: resulting synthesized data based on reof temporal regression
             and spatial modes
     """
 
     y_vals = xr.apply_ufunc(polynomial,q_df)
+    
+    test=print(y_vals)
 
     synth = y_vals * reof_ds.spatial_modes.sel(mode=mode) + reof_ds.center
 
     # drop the unneeded mode dimension
     # force sorting by time in case the array is not already
     synth = synth.astype(np.float32).drop("mode").sortby("time")
+    
 
     return synth
 
