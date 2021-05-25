@@ -5,6 +5,7 @@ import rioxarray
 
 import os
 import logging
+from pathlib import Path
 
 from eofs.xarray import Eof
 from geoglows import streamflow
@@ -41,14 +42,12 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
         dims=['time','space']
     )
     #logger.debug(da_flat)
-    
         
     ## find the temporal mean for each pixel
     center = da_flat.mean(dim='time')
     
     centered = da_flat - center
                
-
     # get an eof solver object
     # explicitly set center to false since data is already
     #solver = Eof(centered,center=False)
@@ -165,13 +164,32 @@ def match_dates(original: xr.DataArray, matching: xr.DataArray) -> xr.DataArray:
     # return the DataArray with only rows that match dates
     return original.where(original.time.isin(matching.time),drop=True)
 
-def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, train_size: float = 0.7, random_state: int = 0, out_path='model_path'):
-    """Function to fit multiple polynomial curves on different temporal modes and test results
+def fits_to_files(fit_dict: dict,out_dir: str):
+    """Procedure to save coeffient arrays stored in dictionary output from `find_fits()` to npy files
 
+    args:
+        fit_dict (dict): output from function `find_fits()`
+        out_dir (str): directory to save coeffients to
     """
 
-    if not os.path.exists(out_path):
-       os.mkdir(out_path)
+    out_dir = Path(out_dir)
+
+    if not out_dir.exists():
+        out_dir.mkdir(parents=True)
+
+    for k,v in fit_dict.items():
+        if k.endswith("coeffs"):
+            components = k.split("_")
+            name_stem = f"poly_{k.replace('_coeffs','')}"
+            coeff_file = out_dir / f"{name_stem}.npy"
+            np.save(str(coeff_file), v)
+
+    return
+
+def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, train_size: float = 0.7, random_state: int = 0, ):
+    """Function to fit multiple polynomial curves on different temporal modes and test results
+
+    """        
     
     X = q_df
     y = reof_ds.temporal_modes
@@ -197,8 +215,6 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
     non_masked_idx= np.where(np.logical_not(np.isnan(spatial_test_flat[0,:])))[0]
 
     modes = reof_ds.mode.values
-    #logger.debug(modes)
-
 
     fit_dict = dict()
     dict_keys = ['fit_r2','pred_r','pred_rmse']
@@ -214,7 +230,6 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
             # apply polynomial fitting
             c = np.polyfit(X_train,y_train_mode,deg=order)
             f = np.poly1d(c)
-            np.save(out_path+'\poly'+f'{mode:02}'+'_deg'+f'{order:02}'+'.npy', f)
 
             y_pred = f(X_test)
 
@@ -229,7 +244,6 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
 
             # calculate statistics
             # calculate the stats of fitting on a test subsample
-            #temporal_r2 = metrics.r2_score(y_pred,y_test_mode)
             temporal_r2 = metrics.r2_score(y_test_mode, y_pred)
 
             temporal_r = -999 if temporal_r2 < 0 else np.sqrt(temporal_r2)
@@ -251,12 +265,65 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
             #stats = [temporal_r2,space_r,space_rmse]
             stats = [temporal_r2, temporal_r, space_rmse]
             loop_dict = {f"mode{mode}_order{order}_{k}":stats[i] for i,k in enumerate(dict_keys)}
+            loop_dict[f"mode{mode}_order{order}_coeffs"] = c
+            logging.debug(loop_dict)
             # merge the loop dictionary with the larger one
             fit_dict = {**fit_dict,**loop_dict}
 
-    #return fit_dict
-    return 
+    return fit_dict
 
+
+def sel_best_fit(fit_dict: dict, metric: str = "r",ranking: str = "max") -> tuple:
+    """Function to extract out the best fit based on user defined metric and ranking
+
+    args:
+        fit_dict (dict): output from function `find_fits()`
+        metric (str, optional): statitical metric to rank, options are 'r', 'r2' or 'rmse'. default = 'r'
+        ranking (str, optional): type of ranking to perform, options are 'min' or 'max'. default = max
+
+    returns:
+        tuple: tuple of values containg the coefficient key, mode, and coefficients of best fit
+    """
+    def max_ranking(old,new):
+        key,ranker = old
+        k,v = new
+        if v > ranker:
+            key = k
+            ranker = v
+        return (key,ranker)
+    
+    def min_ranking(old,new):
+        key,ranker = old
+        k,v = new
+        if v < ranker:
+            key = k
+            ranker = v
+        return (key,ranker)
+
+    if metric not in ["r","r2","rmse"]:
+        raise ValueError("could not determine metric to rank, options are 'r', 'r2' or 'rmse'")
+
+    if ranking == "max":
+        ranker = -1
+        ranking_f = max_ranking
+    elif rankin == "min":
+        ranker = 999
+        ranking_f = min_ranking
+    else:
+        raise ValueError("could not determine ranking, options are 'min' or 'max'")
+
+    ranked = ("",ranker)
+    
+    for k,v in fit_dict.items():
+        if k.endswith(metric):
+            ranked = ranking_f(ranked,(k,v))
+
+    key_split = ranked[0].split("_")
+    ranked_key = "_".join(key_split[:-2] + ["coeffs"])
+    coeffs = fit_dict[ranked_key]
+    mode = int(key_split[0].replace("mode",""))
+
+    return (ranked_key,mode,coeffs)
 
 def synthesize_indep(reof_ds: xr.Dataset, q_df: xr.DataArray, model_mode_order, model_path='.\\model_path\\'):
     """Function to synthesize data at time of interest and output as DataArray
@@ -266,22 +333,19 @@ def synthesize_indep(reof_ds: xr.Dataset, q_df: xr.DataArray, model_mode_order, 
     for num_mode in mode_list:
         #for order in range(1,4):
              
-             f = np.poly1d(np.load(model_path+'\poly'+'{num:0>2}'.format(num=str(num_mode))+'_deg'+'{num:0>2}'.format(num=model_mode_order[str(num_mode)])+'.npy'))
-             #logger.debug('{model_mode_order[str(mode)]:0>2}'+'.npy')
-             
-             
-             y_vals = xr.apply_ufunc(f, q_df)
-             logger.debug(y_vals)
-             
-             synth = y_vals * reof_ds.spatial_modes.sel(mode=int(num_mode)) # + reof_ds.center
-             
-             synth = synth.astype(np.float32).drop("mode").sortby("time")
-
-             return synth
-             
+        f = np.poly1d(np.load(model_path+'\poly'+'{num:0>2}'.format(num=str(num_mode))+'_deg'+'{num:0>2}'.format(num=model_mode_order[str(num_mode)])+'.npy'))
+        #logger.debug('{model_mode_order[str(mode)]:0>2}'+'.npy')
         
-           
+        
+        y_vals = xr.apply_ufunc(f, q_df)
+        logger.debug(y_vals)
+        
+        synth = y_vals * reof_ds.spatial_modes.sel(mode=int(num_mode)) # + reof_ds.center
+        
+        synth = synth.astype(np.float32).drop("mode").sortby("time")
 
+        return synth
+             
 
 def synthesize(reof_ds: xr.Dataset, q_df: xr.DataArray, polynomial: np.poly1d, mode: int = 1) -> xr.DataArray:
     """Function to synthesize data from reof data and regression coefficients.
