@@ -1,0 +1,1268 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.5">
+    
+    
+      
+        <title>fier module - fierpy Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.bde7dde4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#fierpy.fier" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="fierpy Documentation" class="md-header__button md-logo" aria-label="fierpy Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            fierpy Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              fier module
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="fierpy Documentation" class="md-nav__button md-logo" aria-label="fierpy Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    fierpy Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          fier module
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        fier module
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fierpy.fier" class="md-nav__link">
+    fier
+  </a>
+  
+    <nav class="md-nav" aria-label="fier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.find_fits" class="md-nav__link">
+    find_fits()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.fits_to_files" class="md-nav__link">
+    fits_to_files()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.get_streamflow" class="md-nav__link">
+    get_streamflow()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.match_dates" class="md-nav__link">
+    match_dates()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.reof" class="md-nav__link">
+    reof()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.sel_best_fit" class="md-nav__link">
+    sel_best_fit()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.synthesize" class="md-nav__link">
+    synthesize()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.synthesize_indep" class="md-nav__link">
+    synthesize_indep()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fierpy.fier" class="md-nav__link">
+    fier
+  </a>
+  
+    <nav class="md-nav" aria-label="fier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.find_fits" class="md-nav__link">
+    find_fits()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.fits_to_files" class="md-nav__link">
+    fits_to_files()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.get_streamflow" class="md-nav__link">
+    get_streamflow()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.match_dates" class="md-nav__link">
+    match_dates()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.reof" class="md-nav__link">
+    reof()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.sel_best_fit" class="md-nav__link">
+    sel_best_fit()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.synthesize" class="md-nav__link">
+    synthesize()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fierpy.fier.synthesize_indep" class="md-nav__link">
+    synthesize_indep()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  <h1>fier module</h1>
+                
+                <div class="doc doc-object doc-module">
+
+
+
+<h2 class="doc doc-heading" id="fierpy.fier">
+        <code>fierpy.fier</code>
+
+
+
+</h2>
+
+    <div class="doc doc-contents first">
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 class="doc doc-heading" id="fierpy.fier.find_fits">
+<code class="highlight language-python"><span class="n">find_fits</span><span class="p">(</span><span class="n">reof_ds</span><span class="p">,</span> <span class="n">q_df</span><span class="p">,</span> <span class="n">stack</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to fit multiple polynomial curves on different temporal modes and test results</p>
+
+        <details class="quote">
+          <summary>Source code in <code>fierpy/fier.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">find_fits</span><span class="p">(</span><span class="n">reof_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">q_df</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">train_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function to fit multiple polynomial curves on different temporal modes and test results</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>        
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">q_df</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">reof_ds</span><span class="o">.</span><span class="n">temporal_modes</span>
+
+    <span class="c1"># ---- Randomly split data into 2 groups -----</span>
+    <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="n">train_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+    <span class="n">spatial_test</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">time</span><span class="p">),</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">shape3d</span> <span class="o">=</span> <span class="n">spatial_test</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">spatial_shape</span> <span class="o">=</span> <span class="n">shape3d</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">shape2d</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape3d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">spatial_shape</span><span class="p">))</span>
+
+    <span class="n">spatial_test_flat</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">spatial_test</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape2d</span><span class="p">),</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">spatial_test</span><span class="o">.</span><span class="n">time</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shape2d</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="s1">&#39;space&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">non_masked_idx</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">spatial_test_flat</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">modes</span> <span class="o">=</span> <span class="n">reof_ds</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">fit_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">dict_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fit_r2&#39;</span><span class="p">,</span><span class="s1">&#39;pred_r&#39;</span><span class="p">,</span><span class="s1">&#39;pred_rmse&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">:</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">y_train_mode</span> <span class="o">=</span> <span class="n">y_train</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">y_test_mode</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+
+            <span class="c1"># apply polynomial fitting</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train_mode</span><span class="p">,</span><span class="n">deg</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+            <span class="n">synth_test</span> <span class="o">=</span> <span class="n">synthesize</span><span class="p">(</span><span class="n">reof_ds</span><span class="p">,</span><span class="n">X_test</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>                      
+
+
+            <span class="n">synth_test_flat</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">synth_test</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape2d</span><span class="p">),</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">synth_test</span><span class="o">.</span><span class="n">time</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shape2d</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="s1">&#39;space&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># calculate statistics</span>
+            <span class="c1"># calculate the stats of fitting on a test subsample</span>
+            <span class="n">temporal_r2</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_test_mode</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+
+            <span class="n">temporal_r</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span> <span class="k">if</span> <span class="n">temporal_r2</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">temporal_r2</span><span class="p">)</span>
+
+            <span class="c1"># check the synthesis stats comapared to observed data</span>
+            <span class="n">space_r2</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">r2_score</span><span class="p">(</span>
+                <span class="n">spatial_test_flat</span><span class="p">[:,</span><span class="n">non_masked_idx</span><span class="p">],</span>
+                <span class="n">synth_test_flat</span><span class="p">[:,</span><span class="n">non_masked_idx</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">space_r</span><span class="o">=</span> <span class="o">-</span><span class="mi">999</span> <span class="k">if</span> <span class="n">space_r2</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">space_r2</span><span class="p">)</span>
+
+            <span class="n">space_rmse</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">mean_squared_error</span><span class="p">(</span>
+                <span class="n">spatial_test_flat</span><span class="p">[:,</span><span class="n">non_masked_idx</span><span class="p">],</span>
+                <span class="n">synth_test_flat</span><span class="p">[:,</span><span class="n">non_masked_idx</span><span class="p">],</span>
+                <span class="n">squared</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+
+            <span class="c1"># pack the resulting statistics in dictionary for the loop</span>
+            <span class="c1">#stats = [temporal_r2,space_r,space_rmse]</span>
+            <span class="n">stats</span> <span class="o">=</span> <span class="p">[</span><span class="n">temporal_r2</span><span class="p">,</span> <span class="n">temporal_r</span><span class="p">,</span> <span class="n">space_rmse</span><span class="p">]</span>
+            <span class="n">loop_dict</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;mode</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">_order</span><span class="si">{</span><span class="n">order</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span><span class="n">stats</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dict_keys</span><span class="p">)}</span>
+            <span class="n">loop_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mode</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">_order</span><span class="si">{</span><span class="n">order</span><span class="si">}</span><span class="s2">_coeffs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">loop_dict</span><span class="p">)</span>
+            <span class="c1"># merge the loop dictionary with the larger one</span>
+            <span class="n">fit_dict</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">fit_dict</span><span class="p">,</span><span class="o">**</span><span class="n">loop_dict</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">fit_dict</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 class="doc doc-heading" id="fierpy.fier.fits_to_files">
+<code class="highlight language-python"><span class="n">fits_to_files</span><span class="p">(</span><span class="n">fit_dict</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Procedure to save coeffient arrays stored in dictionary output from <code>find_fits()</code> to npy files</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>fit_dict</code></td>
+        <td><code>dict</code></td>
+        <td><p>output from function <code>find_fits()</code></p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>out_dir</code></td>
+        <td><code>str</code></td>
+        <td><p>directory to save coeffients to</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>fierpy/fier.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">fits_to_files</span><span class="p">(</span><span class="n">fit_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span><span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Procedure to save coeffient arrays stored in dictionary output from `find_fits()` to npy files</span>
+
+<span class="sd">    args:</span>
+<span class="sd">        fit_dict (dict): output from function `find_fits()`</span>
+<span class="sd">        out_dir (str): directory to save coeffients to</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">out_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">out_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">fit_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;coeffs&quot;</span><span class="p">):</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="n">name_stem</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;poly_</span><span class="si">{</span><span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_coeffs&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">coeff_file</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name_stem</span><span class="si">}</span><span class="s2">.npy&quot;</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">coeff_file</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">return</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 class="doc doc-heading" id="fierpy.fier.get_streamflow">
+<code class="highlight language-python"><span class="n">get_streamflow</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to get histroical streamflow data from the GeoGLOWS server
+based on geographic coordinates</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>lat</code></td>
+        <td><code>float</code></td>
+        <td><p>latitude value where to get streamflow data</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>lon</code></td>
+        <td><code>float</code></td>
+        <td><p>longitude value where to get streamflow data</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>DataArray</code></td>
+      <td><p>xr.DataArray: DataArray object of streamflow with datetime coordinates</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>fierpy/fier.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_streamflow</span><span class="p">(</span><span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Function to get histroical streamflow data from the GeoGLOWS server</span>
+<span class="sd">    based on geographic coordinates</span>
+
+<span class="sd">    args:</span>
+<span class="sd">        lat (float): latitude value where to get streamflow data</span>
+<span class="sd">        lon (float): longitude value where to get streamflow data</span>
+
+<span class="sd">    returns:</span>
+<span class="sd">        xr.DataArray: DataArray object of streamflow with datetime coordinates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ??? pass lat lon or do it by basin ???</span>
+    <span class="n">reach</span> <span class="o">=</span> <span class="n">streamflow</span><span class="o">.</span><span class="n">latlon_to_reach</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">)</span>
+    <span class="c1"># send request for the streamflow data</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">streamflow</span><span class="o">.</span><span class="n">historic_simulation</span><span class="p">(</span><span class="n">reach</span><span class="p">[</span><span class="s1">&#39;reach_id&#39;</span><span class="p">])</span>
+
+    <span class="c1"># rename column name to something not as verbose as &#39;streamflow_m^3/s&#39;</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;discharge&quot;</span><span class="p">]</span>
+
+    <span class="c1"># rename index and drop the timezone value</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
+    <span class="n">q</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># return the series as a xr.DataArray</span>
+    <span class="k">return</span> <span class="n">q</span><span class="o">.</span><span class="n">discharge</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 class="doc doc-heading" id="fierpy.fier.match_dates">
+<code class="highlight language-python"><span class="n">match_dates</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">matching</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Helper function to filter a DataArray from that match the data values of another.
+Expects that each xarray object has a dimesion named 'time'</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>original</code></td>
+        <td><code>DataArray</code></td>
+        <td><p>original DataArray with time dimension to select from</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>matching</code></td>
+        <td><code>DataArray</code></td>
+        <td><p>DataArray with time dimension to compare against</p></td>
+        <td><em>required</em></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>DataArray</code></td>
+      <td><p>xr.DataArray: DataArray with values that have been temporally matched</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>fierpy/fier.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">match_dates</span><span class="p">(</span><span class="n">original</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">matching</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Helper function to filter a DataArray from that match the data values of another.</span>
+<span class="sd">    Expects that each xarray object has a dimesion named &#39;time&#39;</span>
+
+<span class="sd">    args:</span>
+<span class="sd">        original (xr.DataArray): original DataArray with time dimension to select from</span>
+<span class="sd">        matching (xr.DataArray): DataArray with time dimension to compare against</span>
+
+<span class="sd">    returns:</span>
+<span class="sd">        xr.DataArray: DataArray with values that have been temporally matched</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># return the DataArray with only rows that match dates</span>
+    <span class="k">return</span> <span class="n">original</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">matching</span><span class="o">.</span><span class="n">time</span><span class="p">),</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 class="doc doc-heading" id="fierpy.fier.reof">
+<code class="highlight language-python"><span class="n">reof</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">variance_threshold</span><span class="o">=</span><span class="mf">0.727</span><span class="p">,</span> <span class="n">n_modes</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to perform rotated empirical othogonal function (eof) on a spatial timeseries</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>stack</code></td>
+        <td><code>DataArray</code></td>
+        <td><p>DataArray of spatial temporal values with coord order of (t,y,x)</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>variance_threshold(float,</code></td>
+        <td><code>optional</code></td>
+        <td><p>optional fall back value to select number of eof
+modes to use. Only used if n_modes is less than 1. default = 0.727</p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>n_modes</code></td>
+        <td><code>int</code></td>
+        <td><p>number of eof modes to use. default = 4</p></td>
+        <td><code>4</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>xarray.core.dataset.Dataset</code></td>
+      <td><p>xr.Dataset: rotated eof dataset with spatial modes, temporal modes, and mean values
+    as variables</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>fierpy/fier.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">reof</span><span class="p">(</span><span class="n">stack</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">variance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.727</span><span class="p">,</span> <span class="n">n_modes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Function to perform rotated empirical othogonal function (eof) on a spatial timeseries</span>
+
+<span class="sd">    args:</span>
+<span class="sd">        stack (xr.DataArray): DataArray of spatial temporal values with coord order of (t,y,x)</span>
+<span class="sd">        variance_threshold(float, optional): optional fall back value to select number of eof</span>
+<span class="sd">            modes to use. Only used if n_modes is less than 1. default = 0.727</span>
+<span class="sd">        n_modes (int, optional): number of eof modes to use. default = 4</span>
+
+<span class="sd">    returns:</span>
+<span class="sd">        xr.Dataset: rotated eof dataset with spatial modes, temporal modes, and mean values</span>
+<span class="sd">            as variables</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># extract out some dimension shape information</span>
+    <span class="n">shape3d</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">spatial_shape</span> <span class="o">=</span> <span class="n">shape3d</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">shape2d</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape3d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">spatial_shape</span><span class="p">))</span>
+
+    <span class="c1"># flatten the data from [t,y,x] to [t,...]</span>
+    <span class="n">da_flat</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">stack</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape2d</span><span class="p">),</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">stack</span><span class="o">.</span><span class="n">time</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shape2d</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="s1">&#39;space&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1">#logger.debug(da_flat)</span>
+
+    <span class="c1">## find the temporal mean for each pixel</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">da_flat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+
+    <span class="n">centered</span> <span class="o">=</span> <span class="n">da_flat</span> <span class="o">-</span> <span class="n">center</span>
+
+    <span class="c1"># get an eof solver object</span>
+    <span class="c1"># explicitly set center to false since data is already</span>
+    <span class="c1">#solver = Eof(centered,center=False)</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">Eof</span><span class="p">(</span><span class="n">centered</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># check if the n_modes keyword is set to a realistic value</span>
+    <span class="c1"># if not get n_modes based on variance explained</span>
+    <span class="k">if</span> <span class="n">n_modes</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">n_modes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">solver</span><span class="o">.</span><span class="n">varianceFraction</span><span class="p">()</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">variance_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+    <span class="c1"># calculate to spatial eof values</span>
+    <span class="n">eof_components</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">eofs</span><span class="p">(</span><span class="n">neofs</span><span class="o">=</span><span class="n">n_modes</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="c1"># get the indices where the eof is valid data</span>
+    <span class="n">non_masked_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">eof_components</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># create a &quot;blank&quot; array to set roated values to</span>
+    <span class="n">rotated</span> <span class="o">=</span> <span class="n">eof_components</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># # waiting for release of sklean version &gt;= 0.24</span>
+    <span class="c1"># # until then have a placeholder function to do the rotation</span>
+    <span class="c1"># fa = FactorAnalysis(n_components=n_modes, rotation=&quot;varimax&quot;)</span>
+    <span class="c1"># rotated[non_masked_idx,:] = fa.fit_transform(eof_components[non_masked_idx,:])</span>
+
+    <span class="c1"># apply varimax rotation to eof components</span>
+    <span class="c1"># placeholder function until sklearn version &gt;= 0.24</span>
+    <span class="n">rotated</span><span class="p">[</span><span class="n">non_masked_idx</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">_ortho_rotation</span><span class="p">(</span><span class="n">eof_components</span><span class="p">[</span><span class="n">non_masked_idx</span><span class="p">,:])</span>
+
+    <span class="c1"># project the original time series data on the rotated eofs</span>
+    <span class="n">projected_pcs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">centered</span><span class="p">[:,</span><span class="n">non_masked_idx</span><span class="p">],</span> <span class="n">rotated</span><span class="p">[</span><span class="n">non_masked_idx</span><span class="p">,:])</span>
+
+    <span class="c1"># reshape the rotated eofs to a 3d array of [y,x,c]</span>
+    <span class="n">spatial_rotated</span> <span class="o">=</span> <span class="n">rotated</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">spatial_shape</span><span class="o">+</span><span class="p">(</span><span class="n">n_modes</span><span class="p">,))</span>
+
+    <span class="c1"># structure the spatial and temporal reof components in a Dataset</span>
+    <span class="n">reof_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;spatial_modes&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span><span class="n">spatial_rotated</span><span class="p">),</span>
+            <span class="s2">&quot;temporal_modes&quot;</span><span class="p">:([</span><span class="s2">&quot;time&quot;</span><span class="p">,</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span><span class="n">projected_pcs</span><span class="p">),</span>
+            <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span><span class="n">center</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">spatial_shape</span><span class="p">))</span>
+        <span class="p">},</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;lon&quot;</span><span class="p">:([</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span><span class="n">stack</span><span class="o">.</span><span class="n">lon</span><span class="p">),</span>
+            <span class="s2">&quot;lat&quot;</span><span class="p">:([</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span><span class="n">stack</span><span class="o">.</span><span class="n">lat</span><span class="p">),</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span><span class="n">stack</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+            <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">reof_ds</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 class="doc doc-heading" id="fierpy.fier.sel_best_fit">
+<code class="highlight language-python"><span class="n">sel_best_fit</span><span class="p">(</span><span class="n">fit_dict</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">ranking</span><span class="o">=</span><span class="s1">&#39;max&#39;</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to extract out the best fit based on user defined metric and ranking</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>fit_dict</code></td>
+        <td><code>dict</code></td>
+        <td><p>output from function <code>find_fits()</code></p></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>metric</code></td>
+        <td><code>str</code></td>
+        <td><p>statitical metric to rank, options are 'r', 'r2' or 'rmse'. default = 'r'</p></td>
+        <td><code>&#39;r&#39;</code></td>
+      </tr>
+      <tr>
+        <td><code>ranking</code></td>
+        <td><code>str</code></td>
+        <td><p>type of ranking to perform, options are 'min' or 'max'. default = max</p></td>
+        <td><code>&#39;max&#39;</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>tuple</code></td>
+      <td><p>tuple: tuple of values containg the coefficient key, mode, and coefficients of best fit</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>fierpy/fier.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">sel_best_fit</span><span class="p">(</span><span class="n">fit_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span><span class="n">ranking</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;max&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Function to extract out the best fit based on user defined metric and ranking</span>
+
+<span class="sd">    args:</span>
+<span class="sd">        fit_dict (dict): output from function `find_fits()`</span>
+<span class="sd">        metric (str, optional): statitical metric to rank, options are &#39;r&#39;, &#39;r2&#39; or &#39;rmse&#39;. default = &#39;r&#39;</span>
+<span class="sd">        ranking (str, optional): type of ranking to perform, options are &#39;min&#39; or &#39;max&#39;. default = max</span>
+
+<span class="sd">    returns:</span>
+<span class="sd">        tuple: tuple of values containg the coefficient key, mode, and coefficients of best fit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">max_ranking</span><span class="p">(</span><span class="n">old</span><span class="p">,</span><span class="n">new</span><span class="p">):</span>
+        <span class="n">key</span><span class="p">,</span><span class="n">ranker</span> <span class="o">=</span> <span class="n">old</span>
+        <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">new</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="n">ranker</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">ranker</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">ranker</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">min_ranking</span><span class="p">(</span><span class="n">old</span><span class="p">,</span><span class="n">new</span><span class="p">):</span>
+        <span class="n">key</span><span class="p">,</span><span class="n">ranker</span> <span class="o">=</span> <span class="n">old</span>
+        <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">new</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">ranker</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">ranker</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">ranker</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">metric</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span><span class="s2">&quot;r2&quot;</span><span class="p">,</span><span class="s2">&quot;rmse&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;could not determine metric to rank, options are &#39;r&#39;, &#39;r2&#39; or &#39;rmse&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ranking</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
+        <span class="n">ranker</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">ranking_f</span> <span class="o">=</span> <span class="n">max_ranking</span>
+    <span class="k">elif</span> <span class="n">rankin</span> <span class="o">==</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span>
+        <span class="n">ranker</span> <span class="o">=</span> <span class="mi">999</span>
+        <span class="n">ranking_f</span> <span class="o">=</span> <span class="n">min_ranking</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;could not determine ranking, options are &#39;min&#39; or &#39;max&#39;&quot;</span><span class="p">)</span>
+
+    <span class="n">ranked</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="n">ranker</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">fit_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
+            <span class="n">ranked</span> <span class="o">=</span> <span class="n">ranking_f</span><span class="p">(</span><span class="n">ranked</span><span class="p">,(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">))</span>
+
+    <span class="n">key_split</span> <span class="o">=</span> <span class="n">ranked</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="n">ranked_key</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">key_split</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;coeffs&quot;</span><span class="p">])</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">fit_dict</span><span class="p">[</span><span class="n">ranked_key</span><span class="p">]</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key_split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">ranked_key</span><span class="p">,</span><span class="n">mode</span><span class="p">,</span><span class="n">coeffs</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 class="doc doc-heading" id="fierpy.fier.synthesize">
+<code class="highlight language-python"><span class="n">synthesize</span><span class="p">(</span><span class="n">reof_ds</span><span class="p">,</span> <span class="n">q_df</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to synthesize data from reof data and regression coefficients.
+This will also format the result as a geospatially aware xr.DataArray</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>reof_ds</code></td>
+        <td><code>xarray.core.dataset.Dataset</code></td>
+        <td></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>q_df</code></td>
+        <td><code>DataArray</code></td>
+        <td></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>polynomial</code></td>
+        <td><code>poly1d</code></td>
+        <td></td>
+        <td><em>required</em></td>
+      </tr>
+      <tr>
+        <td><code>mode</code></td>
+        <td><code>int</code></td>
+        <td></td>
+        <td><code>1</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>DataArray</code></td>
+      <td><p>xr.DataArray: resulting synthesized data based on reof temporal regression
+    and spatial modes</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>fierpy/fier.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">synthesize</span><span class="p">(</span><span class="n">reof_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">q_df</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">polynomial</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Function to synthesize data from reof data and regression coefficients.</span>
+<span class="sd">    This will also format the result as a geospatially aware xr.DataArray</span>
+
+<span class="sd">    args:</span>
+<span class="sd">        reof_ds (xr.Dataset):</span>
+<span class="sd">        q_df (xr.DataArray):</span>
+<span class="sd">        polynomial (np.poly1d):</span>
+<span class="sd">        mode (int, optional):</span>
+
+
+<span class="sd">    returns:</span>
+<span class="sd">        xr.DataArray: resulting synthesized data based on reof temporal regression</span>
+<span class="sd">            and spatial modes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">y_vals</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span><span class="n">polynomial</span><span class="p">,</span><span class="n">q_df</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">y_vals</span><span class="p">)</span>
+
+    <span class="n">synth</span> <span class="o">=</span> <span class="n">y_vals</span> <span class="o">*</span> <span class="n">reof_ds</span><span class="o">.</span><span class="n">spatial_modes</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span> <span class="o">+</span> <span class="n">reof_ds</span><span class="o">.</span><span class="n">center</span>
+
+    <span class="c1"># drop the unneeded mode dimension</span>
+    <span class="c1"># force sorting by time in case the array is not already</span>
+    <span class="n">synth</span> <span class="o">=</span> <span class="n">synth</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sortby</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+
+
+    <span class="k">return</span> <span class="n">synth</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h3 class="doc doc-heading" id="fierpy.fier.synthesize_indep">
+<code class="highlight language-python"><span class="n">synthesize_indep</span><span class="p">(</span><span class="n">reof_ds</span><span class="p">,</span> <span class="n">q_df</span><span class="p">,</span> <span class="n">model_mode_order</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">model_path</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span></code>
+
+
+</h3>
+
+    <div class="doc doc-contents ">
+
+      <p>Function to synthesize data at time of interest and output as DataArray</p>
+
+        <details class="quote">
+          <summary>Source code in <code>fierpy/fier.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">synthesize_indep</span><span class="p">(</span><span class="n">reof_ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">q_df</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">model_mode_order</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s1">&#39;.</span><span class="se">\\</span><span class="s1">model_path</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function to synthesize data at time of interest and output as DataArray</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mode_list</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">model_mode_order</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">num_mode</span> <span class="ow">in</span> <span class="n">mode_list</span><span class="p">:</span>
+        <span class="c1">#for order in range(1,4):</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="o">+</span><span class="s1">&#39;\poly&#39;</span><span class="o">+</span><span class="s1">&#39;</span><span class="si">{num:0&gt;2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">num_mode</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;_deg&#39;</span><span class="o">+</span><span class="s1">&#39;</span><span class="si">{num:0&gt;2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="n">model_mode_order</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">num_mode</span><span class="p">)])</span><span class="o">+</span><span class="s1">&#39;.npy&#39;</span><span class="p">))</span>
+        <span class="c1">#logger.debug(&#39;{model_mode_order[str(mode)]:0&gt;2}&#39;+&#39;.npy&#39;)</span>
+
+
+        <span class="n">y_vals</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">q_df</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">y_vals</span><span class="p">)</span>
+
+        <span class="n">synth</span> <span class="o">=</span> <span class="n">y_vals</span> <span class="o">*</span> <span class="n">reof_ds</span><span class="o">.</span><span class="n">spatial_modes</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">num_mode</span><span class="p">))</span> <span class="c1"># + reof_ds.center</span>
+
+        <span class="n">synth</span> <span class="o">=</span> <span class="n">synth</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sortby</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">synth</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href=".." class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Overview
+            </div>
+          </div>
+        </a>
+      
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.d351de03.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a1609d9a.min.js"></script>
+      
+    
+  </body>
+</html>
