@@ -22,6 +22,15 @@ setup(name='fierpy',
         'xarray',
         'scikit-learn>=0.24',
         'geoglows',
-        'eofs'
+        'eofs',
+        'netcdf4'
+        'pyqt'
     ],
+    extras_require = {
+        'opensarlab':  [
+            'kernda',
+            'jupyter',
+
+        ]
+    }
 )
