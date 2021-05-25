@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 import rioxarray
-import matplotlib.pyplot as plt
+
 import os
 import logging
 
@@ -215,9 +215,6 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
             c = np.polyfit(X_train,y_train_mode,deg=order)
             f = np.poly1d(c)
             np.save(out_path+'\poly'+f'{mode:02}'+'_deg'+f'{order:02}'+'.npy', f)
-
-            #plt.scatter(X_train,y_train_mode)
-            #plt.show()
 
             y_pred = f(X_test)
 
