@@ -24,7 +24,6 @@ setup(name='fierpy',
         'geoglows',
         'eofs',
         'netcdf4',
-        'pyqt'
     ],
     extras_require = {
         'opensarlab':  [
