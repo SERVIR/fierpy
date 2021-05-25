@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='fierpy',
-    version='0.0.1',
+    version='0.0.2',
     description='Python implementation of the Forecasting Inundation Extents using REOF method',
     long_description=long_description,
     long_description_content_type="text/markdown",
