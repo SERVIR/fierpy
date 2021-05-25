@@ -1,0 +1,16 @@
+site_name: fierpy Documentation
+
+nav:
+  - Overview: index.md
+  - fier module: fier.md
+
+theme: 
+  name: material
+
+# markdown_extensions:
+#     - markdown.extensions.codehilite:
+#         guess_lang: false
+
+plugins:
+    - search
+    - mkdocstrings
