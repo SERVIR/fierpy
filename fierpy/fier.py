@@ -1,7 +1,6 @@
 import numpy as np
 import xarray as xr
 import pandas as pd
-import rioxarray
 
 import os
 import logging
@@ -375,18 +374,3 @@ def synthesize(reof_ds: xr.Dataset, q_df: xr.DataArray, polynomial: np.poly1d, m
     
 
     return synth
-
-
-def reofs_to_geotiff(reof_ds: xr.Dataset, path: str):
-    """Helper funtion to convert xr.Dataset spatial modes from REOF analysis to geotiff
-
-    args:
-        reof_ds (xr.Dataset):
-        path (str):
-    """
-
-    reof_rio = reof_ds.rio.write_crs("epsg:4326").rename({"lon":"x","lat":"y"})
-
-    reof_rio.spatial_modes.transpose('mode', 'y', 'x').rio.to_raster(path)
-
-    return
