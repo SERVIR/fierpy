@@ -11,5 +11,5 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.6
-      - run: pip install --use-deprecated=legacy-resolver mkdocs==1.1.2 mkdocs-material==7.1.5 mkdocstrings==0.15.1 fierpy>=0.0.3
+      - run: pip install --use-deprecated=legacy-resolver mkdocs==1.1.2 mkdocs-material==7.1.5 mkdocstrings==0.15.1 fierpy>=0.0.4
       - run: mkdocs gh-deploy --force
