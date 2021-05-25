@@ -4,12 +4,15 @@ import pandas as pd
 import rioxarray
 import matplotlib.pyplot as plt
 import os
+import logging
 
 from eofs.xarray import Eof
 from geoglows import streamflow
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 4) -> xr.Dataset:
@@ -37,7 +40,7 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
         coords = [stack.time,np.arange(shape2d[1])],
         dims=['time','space']
     )
-    #print(da_flat)
+    #logger.debug(da_flat)
     
         
     ## find the temporal mean for each pixel
@@ -176,8 +179,8 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
     # ---- Randomly split data into 2 groups -----
     X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_size, random_state=random_state)
 
-    print(X_train)
-    print(X_test)
+    logger.debug(X_train)
+    logger.debug(X_test)
 
     spatial_test = stack.where(stack.time.isin(y_test.time),drop=True)
 
@@ -194,7 +197,7 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
     non_masked_idx= np.where(np.logical_not(np.isnan(spatial_test_flat[0,:])))[0]
 
     modes = reof_ds.mode.values
-    #print(modes)
+    #logger.debug(modes)
 
 
     fit_dict = dict()
@@ -202,7 +205,7 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
 
     for mode in modes:
 
-        print(mode)
+        logger.debug(mode)
         y_train_mode = y_train.sel(mode=mode)
         y_test_mode = y_test.sel(mode=mode)
 
@@ -226,10 +229,6 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
                 coords = [synth_test.time,np.arange(shape2d[1])],
                 dims=['time','space']
             )
-            
-            
-            
-            
 
             # calculate statistics
             # calculate the stats of fitting on a test subsample
@@ -271,18 +270,16 @@ def synthesize_indep(reof_ds: xr.Dataset, q_df: xr.DataArray, model_mode_order, 
         #for order in range(1,4):
              
              f = np.poly1d(np.load(model_path+'\poly'+'{num:0>2}'.format(num=str(num_mode))+'_deg'+'{num:0>2}'.format(num=model_mode_order[str(num_mode)])+'.npy'))
-             #print('{model_mode_order[str(mode)]:0>2}'+'.npy')
+             #logger.debug('{model_mode_order[str(mode)]:0>2}'+'.npy')
              
              
              y_vals = xr.apply_ufunc(f, q_df)
-             print(y_vals)
+             logger.debug(y_vals)
              
              synth = y_vals * reof_ds.spatial_modes.sel(mode=int(num_mode)) # + reof_ds.center
              
              synth = synth.astype(np.float32).drop("mode").sortby("time")
-             
-             
-             
+
              return synth
              
         
@@ -307,7 +304,7 @@ def synthesize(reof_ds: xr.Dataset, q_df: xr.DataArray, polynomial: np.poly1d, m
 
     y_vals = xr.apply_ufunc(polynomial,q_df)
     
-    test=print(y_vals)
+    logger.debug(y_vals)
 
     synth = y_vals * reof_ds.spatial_modes.sel(mode=mode) + reof_ds.center
 
