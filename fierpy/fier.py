@@ -1,21 +1,31 @@
+import os
+import logging
+import warnings
+from tqdm import tqdm
+from pathlib import Path
+import itertools
+import multiprocessing as mp
+from functools import partial
+from numba import jit
+from typing import Union
+from collections.abc import Iterable
+
 import numpy as np
 import xarray as xr
 import pandas as pd
-
-import os
-import logging
-from pathlib import Path
+from scipy import stats
 
 from eofs.xarray import Eof
 from geoglows import streamflow
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
+import HydroErr as he
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 4) -> xr.Dataset:
+@jit(nopython=False)
+def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = -1) -> xr.Dataset:
     """Function to perform rotated empirical othogonal function (eof) on a spatial timeseries
 
     args:
@@ -41,12 +51,12 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
         dims=['time','space']
     )
     #logger.debug(da_flat)
-        
+
     ## find the temporal mean for each pixel
     center = da_flat.mean(dim='time')
-    
+
     centered = da_flat - center
-               
+
     # get an eof solver object
     # explicitly set center to false since data is already
     #solver = Eof(centered,center=False)
@@ -85,7 +95,8 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
         {
             "spatial_modes": (["lat","lon","mode"],spatial_rotated),
             "temporal_modes":(["time","mode"],projected_pcs),
-            "center": (["lat","lon"],center.values.reshape(spatial_shape))
+            "center": (["lat","lon"],center.values.reshape(spatial_shape)),
+            "variance": (["mode"],solver.varianceFraction()[:n_modes])
         },
         coords = {
             "lon":(["lon"],stack.lon),
@@ -121,13 +132,13 @@ def _ortho_rotation(components: np.array, method: str = 'varimax', tol: float = 
     return np.dot(components, rotation_matrix)
 
 
-def get_streamflow(lat: float, lon: float) -> xr.DataArray:
+def get_streamflow(lon: float, lat: float) -> xr.DataArray:
     """Function to get histroical streamflow data from the GeoGLOWS server
     based on geographic coordinates
 
     args:
-        lat (float): latitude value where to get streamflow data
         lon (float): longitude value where to get streamflow data
+        lat (float): latitude value where to get streamflow data
 
     returns:
         xr.DataArray: DataArray object of streamflow with datetime coordinates
@@ -163,7 +174,8 @@ def match_dates(original: xr.DataArray, matching: xr.DataArray) -> xr.DataArray:
     # return the DataArray with only rows that match dates
     return original.where(original.time.isin(matching.time),drop=True)
 
-def fits_to_files(fit_dict: dict,out_dir: str):
+
+def fits_to_files(fit_dict: dict,out_dir: str) -> None:
     """Procedure to save coeffient arrays stored in dictionary output from `find_fits()` to npy files
 
     args:
@@ -185,11 +197,11 @@ def fits_to_files(fit_dict: dict,out_dir: str):
 
     return
 
-def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, train_size: float = 0.7, random_state: int = 0, ):
+def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, train_size: float = 0.7, random_state: int = 0, ) -> dict:
     """Function to fit multiple polynomial curves on different temporal modes and test results
 
-    """        
-    
+    """
+
     X = q_df
     y = reof_ds.temporal_modes
 
@@ -224,6 +236,8 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
         y_train_mode = y_train.sel(mode=mode)
         y_test_mode = y_test.sel(mode=mode)
 
+        mode_dict = {}
+
         for order in range(1,4):
 
             # apply polynomial fitting
@@ -232,8 +246,7 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
 
             y_pred = f(X_test)
 
-            synth_test = synthesize(reof_ds,X_test,f,mode=mode)                      
-             
+            synth_test = synthesize(reof_ds,X_test,f,mode=mode)
 
             synth_test_flat = xr.DataArray(
                 synth_test.values.reshape(shape2d),
@@ -263,16 +276,17 @@ def find_fits(reof_ds: xr.Dataset, q_df: xr.DataArray, stack: xr.DataArray, trai
             # pack the resulting statistics in dictionary for the loop
             #stats = [temporal_r2,space_r,space_rmse]
             stats = [temporal_r2, temporal_r, space_rmse]
-            loop_dict = {f"mode{mode}_order{order}_{k}":stats[i] for i,k in enumerate(dict_keys)}
-            loop_dict[f"mode{mode}_order{order}_coeffs"] = c
+            loop_dict = {f"order{order}_{k}":stats[i] for i,k in enumerate(dict_keys)}
+            loop_dict[f"order{order}_coeffs"] = c
             logging.debug(loop_dict)
+            mode_dict = {**mode_dict,**loop_dict}
             # merge the loop dictionary with the larger one
-            fit_dict = {**fit_dict,**loop_dict}
+        fit_dict[mode] = mode_dict
 
     return fit_dict
 
 
-def sel_best_fit(fit_dict: dict, metric: str = "r",ranking: str = "max") -> tuple:
+def sel_best_fit(fit_dict: dict, metric: str = "r",ranking: str = "max") -> Iterable[tuple[int,float]]:
     """Function to extract out the best fit based on user defined metric and ranking
 
     args:
@@ -290,7 +304,7 @@ def sel_best_fit(fit_dict: dict, metric: str = "r",ranking: str = "max") -> tupl
             key = k
             ranker = v
         return (key,ranker)
-    
+
     def min_ranking(old,new):
         key,ranker = old
         k,v = new
@@ -305,47 +319,68 @@ def sel_best_fit(fit_dict: dict, metric: str = "r",ranking: str = "max") -> tupl
     if ranking == "max":
         ranker = -1
         ranking_f = max_ranking
-    elif rankin == "min":
+    elif ranking == "min":
         ranker = 999
         ranking_f = min_ranking
     else:
         raise ValueError("could not determine ranking, options are 'min' or 'max'")
 
-    ranked = ("",ranker)
-    
-    for k,v in fit_dict.items():
-        if k.endswith(metric):
-            ranked = ranking_f(ranked,(k,v))
+    ranked_modes = []
+    for mode,metrics in fit_dict.items():
+        ranked = ("",ranker)
+        for k,v in metrics.items():
+            if k.endswith(metric):
+                ranked = ranking_f(ranked,(k,v))
 
-    key_split = ranked[0].split("_")
-    ranked_key = "_".join(key_split[:-2] + ["coeffs"])
-    coeffs = fit_dict[ranked_key]
-    mode = int(key_split[0].replace("mode",""))
+        print(ranked)
+        if (ranking == "max") & (ranked[-1] < 0):
+            coeffs = np.zeros(4)
+        elif (ranking == "min") & (ranked[-1] >= 999):
+            coeffs = np.zeros(4)
+        else:
+            key_split = ranked[0].split("_")
+            ranked_key = "_".join(key_split[:-2] + ["coeffs"])
+            coeffs = metrics[ranked_key]
+            coeffs = np.pad(coeffs,(4-coeffs.size,0),'constant', constant_values=0)
 
-    return (ranked_key,mode,coeffs)
+        ranked_modes.append((mode,coeffs))
+
+    return ranked_modes
+
+
+def set_best_fit(reof_ds: xr.Dataset, fit_dict: dict, **kwargs: dict) -> xr.Dataset:
+    fs = sel_best_fit(fit_dict,**kwargs)
+
+    coeffs = list(zip(*fs))[-1]
+
+    output = reof_ds.copy()
+    output = output.assign_coords({"order":[3,2,1,0]})
+    output["coeffs"] = (("mode","order"),np.array(coeffs))
+
+    return output
 
 def synthesize_indep(reof_ds: xr.Dataset, q_df: xr.DataArray, model_mode_order, model_path='.\\model_path\\'):
     """Function to synthesize data at time of interest and output as DataArray
-   
+
     """
     mode_list=list(model_mode_order)
     for num_mode in mode_list:
         #for order in range(1,4):
-             
+
         f = np.poly1d(np.load(model_path+'\poly'+'{num:0>2}'.format(num=str(num_mode))+'_deg'+'{num:0>2}'.format(num=model_mode_order[str(num_mode)])+'.npy'))
         #logger.debug('{model_mode_order[str(mode)]:0>2}'+'.npy')
-        
-        
+
         y_vals = xr.apply_ufunc(f, q_df)
         logger.debug(y_vals)
-        
+
         synth = y_vals * reof_ds.spatial_modes.sel(mode=int(num_mode)) # + reof_ds.center
-        
+
         synth = synth.astype(np.float32).drop("mode").sortby("time")
 
         return synth
-             
 
+
+@jit(nopython=False)
 def synthesize(reof_ds: xr.Dataset, q_df: xr.DataArray, polynomial: np.poly1d, mode: int = 1) -> xr.DataArray:
     """Function to synthesize data from reof data and regression coefficients.
     This will also format the result as a geospatially aware xr.DataArray
@@ -363,14 +398,177 @@ def synthesize(reof_ds: xr.Dataset, q_df: xr.DataArray, polynomial: np.poly1d, m
     """
 
     y_vals = xr.apply_ufunc(polynomial,q_df)
-    
+
     logger.debug(y_vals)
 
     synth = y_vals * reof_ds.spatial_modes.sel(mode=mode) + reof_ds.center
 
     # drop the unneeded mode dimension
     # force sorting by time in case the array is not already
-    synth = synth.astype(np.float32).drop("mode").sortby("time")
-    
+    if "time" in synth.dims:
+        synth = synth.astype(np.float32).drop("mode").sortby("time")
+    else:
+        # warnings.warn("q_df and resulting synthesis did not have a time dimension so returning synthesized dataset unordered")
+        synth = synth.astype(np.float32).drop("mode")
 
     return synth
+
+
+@jit(nopython=False)
+def _vec_poly1d(coeffs: xr.DataArray, vals: xr.DataArray) -> xr.DataArray:
+    """Private function to apply vectorized polynomial on xarray dataarrays
+
+    args:
+        coeffs (Iterable[float]): array like sequence of polynomial coeffients
+        vals (Iterable[float]): array kike values to apply polynomial function to
+    """
+    return np.poly1d(np.squeeze(coeffs))(vals)
+
+
+@jit(nopython=False)
+def reconstruct(reof_ds: xr.Dataset, q: Union[Iterable[float],float]) -> xr.DataArray:
+    """Function to recontruct SAR imagery from streamflow and REOF analysis
+
+    args:
+        reof_ds (xr.Dataset)
+        q (Iterable):
+
+    returns:
+        xr.DataArray
+
+    """
+    n_modes = reof_ds.mode.size
+
+    coeff_da = reof_ds.coeffs
+
+    if isinstance(q,Iterable) and not isinstance(q,xr.DataArray):
+        q = xr.DataArray(q,dims=("time"))
+    else:
+        q = xr.DataArray(q)
+
+    q_mode = xr.concat([q for _ in range(n_modes)],dim=xr.DataArray(range(1,n_modes+1),dims="mode",name="mode"))
+
+    sim_pcs = xr.apply_ufunc(_vec_poly1d,coeff_da,q_mode,vectorize="True",input_core_dims=[["order"],[]])
+
+    if "time" in sim_pcs.coords.keys():
+        sim_pcs = sim_pcs.transpose("time","mode")
+
+    reconstructed = sim_pcs.dot(reof_ds.spatial_modes) + reof_ds.center
+
+    return reconstructed
+
+
+def get_reference(reof_ds, percentile,f,mode):
+
+    # assumption here is that 2-year return period is the reference
+    # assume we can calc 2-year return period using 50th percentile...
+    # does 50th percentile === 50% on CDF??? -> may depend on bins
+
+    # hist,bins = np.histogram(historic_q,bins=500)
+    # hist_norm = hist / historic_q.size
+    # cdf = np.cumsum(hist_norm)
+    # ref_q = bins[np.argmax(np.where(cdf<=0.5))]
+
+    q_da = reof_ds.q
+
+    q_hist,bins = np.histogram(q_da,bins=500)
+    q_bins = bins[:-1] + ((bins[1]-bins[0])/2)
+    q_cdf = np.cumsum(q_hist/q_hist.sum())
+
+    ref_q = q_bins[np.abs(q_cdf - percentile).argmin()]
+
+    ref_img = synthesize(reof_ds,ref_q,f,mode)
+
+    return ref_img
+
+
+# @jit(nopython=False)
+def _test_water_est(args, **kwargs):#reof_ds = None, synth = None, q_bins = None, q_cdf = None, f=None, mode=None):
+    ref_q = kwargs["q_bins"][np.abs(kwargs["q_cdf"] - args[0]).argmin()]
+
+    # ref_img = synthesize(kwargs["reof_ds"],[ref_q],kwargs["f"],kwargs["mode"])
+    ref_img = reconstruct(kwargs["reof_ds"],ref_q)
+
+    synth_ref = kwargs["synth"] - ref_img
+
+    water = synth_ref <= args[1]
+
+    n_water = water.sum(dim=['lat','lon'])
+
+    if np.all(n_water == 0):
+        test = -9999.0
+
+    else:
+        water_mu,water_sigma = np.mean(n_water), np.std(n_water)
+        water_norm = (n_water - water_mu) / water_sigma
+        test = he.nse(water_norm,kwargs["q_norm"])
+
+    return test
+
+def fit_water_est(reof_ds):
+
+    ref_tests = np.arange(0.35,0.45,0.02)
+    threshold_tests = np.arange(-12,1,0.5)
+
+    p_n = ref_tests.size
+    t_n = threshold_tests.size
+
+    q_da = reof_ds.q
+
+    q_hist,bins = np.histogram(q_da,bins=100)
+    q_bins = bins[:-1] + ((bins[1]-bins[0])/2)
+    q_cdf = np.cumsum(q_hist/q_hist.sum())
+
+    mu,sigma = np.mean(q_da),np.std(q_da)
+    q_norm = (q_da - mu) / sigma
+
+    # synth = synthesize(reof_ds,q_da,f,mode)
+    synth = reconstruct(reof_ds,q_da)
+
+    _test = partial(_test_water_est,reof_ds=reof_ds,synth=synth,q_bins=q_bins,q_cdf=q_cdf,q_norm=q_norm)
+
+    # metrics = np.zeros_like(threshold_tests).astype(np.float32)
+    metrics = []
+    keys = []
+
+    test_opts = tuple(itertools.product(ref_tests, threshold_tests))
+    # print(f"processing {len(test_opts)} options")
+
+        # pbar = tqdm(total=len(test_opts),desc="Water estimate fit")
+    gen = map(_test, test_opts)
+    metrics = tuple(tqdm(gen,total=len(test_opts),desc="Water estimate fit"))
+        # pbar.close()
+    # for threshold, percentile in test_opts:
+    #     # for i,threshold in enumerate(threshold_tests):
+    #
+    #     test = delayed(_test)(threshold,percentile)
+    #
+    #     key = f"{threshold}_{percentile}"
+    #
+    #     metrics.append(test)
+    #     keys.append(key)
+
+    init_idx = np.argmax(metrics)
+    p_idx,t_idx = np.unravel_index(init_idx, (p_n,t_n))
+
+    init_p = ref_tests[p_idx]
+    init_t = threshold_tests[t_idx]
+
+    ref_tests = np.arange(init_p-0.07,init_p+0.07,0.01)
+    threshold_tests = np.arange(init_t-0.7,init_t+0.7,0.1)
+
+    test_opts = tuple(itertools.product(ref_tests, threshold_tests))
+    # print(f"fine tuning initial estimate...")
+    # print(f"processing {len(test_opts)} options")
+
+        # pbar = tqdm(total=len(test_opts),desc="Water estimate fit")
+    gen = map(_test, test_opts)
+    metrics = tuple(tqdm(gen,total=len(test_opts),desc="Water estimate fit"))
+
+    # print({k:metrics[i] for i,k in enumerate(threshold_tests)})
+
+    opt_idx = np.argmax(metrics)
+    p,t = test_opts[opt_idx]
+
+    # return threshold_tests[opt_idx]
+    return p,t, metrics
