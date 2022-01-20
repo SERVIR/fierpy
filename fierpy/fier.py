@@ -21,22 +21,34 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 import HydroErr as he
 
+import random
+import scipy as sci
+import matplotlib
+import matplotlib.pyplot as plt
+from typing import Tuple
+logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 
 @jit(nopython=False)
-def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = -1) -> xr.Dataset:
-    """Function to perform rotated empirical othogonal function (eof) on a spatial timeseries
+
+
+# ----- Conventional EOF (unrotated) -----
+def unrot_eof(stack: xr.DataArray, variance_threshold: float = 0.8, n_modes: int = -1) -> xr.Dataset:
+    """Function to perform unrotated empirical othogonal function (eof) on a spatial timeseries
 
     args:
         stack (xr.DataArray): DataArray of spatial temporal values with coord order of (t,y,x)
         variance_threshold(float, optional): optional fall back value to select number of eof
-            modes to use. Only used if n_modes is less than 1. default = 0.727
-        n_modes (int, optional): number of eof modes to use. default = 4
+            modes to use. Only used if n_modes is less than 1. default = 0.8
+        n_modes (int, optional): number of eof modes to use. default = -1
 
     returns:
-        xr.Dataset: rotated eof dataset with spatial modes, temporal modes, and mean values
+        xr.Dataset: eof dataset with spatial modes, temporal modes, and mean values
             as variables
+            
+        list: explained variance (%)
 
     """
     # extract out some dimension shape information
@@ -51,24 +63,293 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
         dims=['time','space']
     )
     #logger.debug(da_flat)
-
+    
     ## find the temporal mean for each pixel
-    center = da_flat.mean(dim='time')
-
+    center = da_flat.mean(dim='time')    
     centered = da_flat - center
 
+    # get an eof solver object
+    # explicitly set center to false since data is already
+    solver = Eof(centered,center=False)
+
+    # check if the n_modes keyword is set to a realistic value
+    # if not get n_modes based on variance explained 
+    # (Retain up to the mode that has cumulative explained variance higher that the threshold: 0.8)
+    if n_modes < 0:
+        #n_modes = int((solver.varianceFraction().cumsum() < variance_threshold).sum())          
+        # Find the mode whose cumulative variance fraction >= the threshold
+        n_modes = int(np.argwhere(solver.varianceFraction().cumsum().values >= variance_threshold)[0]+1)
+    
+    # calculate to spatial eof values
+    eof_components = solver.eofs(neofs=n_modes).transpose()
+
+    # get the indices where the eof is valid data
+    non_masked_idx = np.where(np.logical_not(np.isnan(eof_components[:,0])))[0]
+
+    # get eof with valid data
+    eof_components = np.asarray(eof_components)
+    
+    # project the original time series data on the rotated eofs
+    projected_pcs = np.dot(centered[:,non_masked_idx], eof_components[non_masked_idx,:])
+
+    # reshape the rotated eofs to a 3d array of [y,x,c]
+    spatial = eof_components.reshape(spatial_shape+(n_modes,))
+        
+    # structure the spatial and temporal eof components in a Dataset
+    eof_ds = xr.Dataset(
+        {
+            "spatial_modes": (["lat","lon","mode"],spatial),
+            "temporal_modes":(["time","mode"],projected_pcs),
+            "center": (["lat","lon"],center.values.reshape(spatial_shape))
+        },
+        coords = {
+            "lon":(["lon"],stack.lon),
+            "lat":(["lat"],stack.lat),
+            "time":stack.time,
+            "mode": np.arange(n_modes)+1
+        }
+    )
+
+    return eof_ds, solver.varianceFraction().values[0:n_modes]*100
+
+
+def sig_eof_test(stack: xr.DataArray, iter_time: int=5) -> int:
+    """
+       Significant test to the EOF results using Monte Carlo simulation. It is to find the significant EOF modes
+       to retain for rotation (REOF)
+       
+       args:
+       1. stack: Input DataArray containing satellite imagery
+       2. iter_time: Iteration time for Monte Carlo simulation. Default = 5. 
+       
+       output:
+       sig_mode: number of modes whose spatiotemporal patterns are stronger than the randomized data
+       
+    """          
+    
+    fontdict={
+       'weight':'bold',
+       'size':14    
+    }
+    matplotlib.rc('font',**fontdict)
+    
+    # extract out some dimension shape information
+    shape3d = stack.shape
+    spatial_shape = shape3d[1:]
+    shape2d = (shape3d[0],np.prod(spatial_shape))
+
+    # flatten the data from [t,y,x] to [t,...]
+    da_flat = xr.DataArray(
+        stack.values.reshape(shape2d),
+        coords = [stack.time,np.arange(shape2d[1])],
+        dims=['time','space']
+    )
+    #logger.debug(da_flat)
+        
+    ## find the temporal mean for each pixel
+    center = da_flat.mean(dim='time')
+    
+    centered = da_flat - center
+    centered = centered.dropna(dim='space')
+    data_org = centered.values
+    data_orgT = np.transpose(data_org)
+    
+    pix_num = centered.sizes['space']
+    obs_num = centered.sizes['time']
+    
+    # Get eigenvalue from real data   
+    solver_real = Eof(centered,center=False)
+    real_lamb = np.array(solver_real.eigenvalues(neigs = obs_num))
+       
+    print('Perform Monte Carlo significant test')       
+       
+    #rng = np.random.default_rng() #For numpy>=1.20            
+       
+    mc_lamb = np.full((obs_num,iter_time),np.nan)
+             
+    # ----- Monte Carlo simulation. It takes time if iterating many times. Looking for way to parallelize it.
+    #       (Perhaps using dask and chunk?)
+    for i in range(iter_time):
+        #print('Iteration: ',str(i+1))
+         
+        # ----- Randomize observation (space-wise randomization)                                
+        idx = np.random.rand(obs_num, pix_num).argsort(axis=1) #For numpy 1.19 (for compatible to Tensorflow)
+        obs_temp = np.take_along_axis(centered.values,idx,axis=1) #For numpy 1.19 (for compatible to Tensorflow)
+
+        # obs_temp = rng.permuted(centered.values, axis=1) #For numpy>=1.20
+         
+        obs_temp = xr.DataArray(
+            obs_temp,
+            coords=[centered.time,np.arange(pix_num)],
+            dims=['time','space']
+        )        
+         
+        solver_mc = Eof(obs_temp,center=False)
+        mc_lamb[:,i] = solver_mc.eigenvalues(neigs = obs_num)
+          
+    mc_lamb = np.transpose(mc_lamb)
+    mean_mc_lamb = np.mean(mc_lamb,axis=0)
+    std_mc_lamb = np.std(mc_lamb,axis=0)
+       
+    gt = np.greater(real_lamb, mean_mc_lamb).astype(int)                       
+    gt_rev = gt[::-1]              
+        
+    sig_mode = len(gt_rev) - np.argmax(gt_rev)
+                      
+    plt.title('Scree Plot',fontdict=fontdict)
+    plt.plot(np.arange(obs_num)+1, real_lamb, marker='+')
+    plt.errorbar(np.arange(obs_num)+1, mean_mc_lamb, std_mc_lamb)
+    plt.legend(['Real Data','MonteCarlo Sim. Data'])
+    plt.xlabel('Mode',fontdict=fontdict)
+    plt.ylabel('Eigenvalue',fontdict=fontdict)
+    plt.show()       
+       
+       
+    return sig_mode
+
+
+def find_hydro_mode(eof_stack: xr.Dataset, hydro_stack: xr.DataArray, r_type:int=0, r_thrd: float=0.6, deoutlier: int=0) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:   
+    """
+       Calculate correlation between temporal patterns and hydrological data.
+       This helps determine water-related mode. By default,  >=0.6 is considered to be correlated.      
+
+       args:
+       1. eof_stack: Dataset with EOF or REOF results
+       2. hydro_stack: DataArray with hydrological data (now GEOGloWS streamflow)
+       3. r_type: 0: Pearson (default); 1: Spearman; 2: Nash-Sutcliffe
+       4. r_threshold: Threshold (default: 0.6) of correlation coefficient to decide which modes are water-related
+       5. deoutlier: Apply outlier removal (or not) to the hydrological data before calculating correlation
+       
+       output (site X modes):
+       1. site_out: index for the in-situ data list
+       2. mode_out: index for the eof/reof mode list
+       3. r_out: corresponding r
+       
+    """    
+    # get number of mode     
+    mode_num = eof_stack.sizes['mode']    
+    # get number of hydrological data sites
+    site_num = hydro_stack.sizes['site']    
+        
+    r = np.zeros((site_num, mode_num))
+    p = np.zeros((site_num, mode_num))
+    
+    if r_type==0:
+        out_rstr='Pearson'
+    elif r_type==1:
+        out_rstr='Spearman'
+    elif r_type==2:
+        out_rstr='Nash-Sutcliffe'
+      
+    print('Assigned correlation type:' + out_rstr)
+    
+    
+    # ----- Instead of using FOR, see if it is possible to vectorize the process -----
+    for ct_mode in range(mode_num):
+        # get mode of tpc
+        tpc = eof_stack.temporal_modes.sel(mode=int(ct_mode+1))    
+      
+        for ct_site in range(site_num):
+            # get hydrological data coincident with satellite images (TPC) 
+            hydro_single = hydro_stack[ct_site].dropna(dim='time')
+                                
+            if deoutlier==1:
+                hydro_zscore = sci.stats.zscore(hydro_single)                
+                indx_good_hydro = (np.abs(hydro_zscore) <= 3)
+                hydro_site = hydro_single[indx_good_hydro]        
+            elif deoutlier==0:
+                hydro_site=hydro_single
+        
+            good_hydro = match_dates(hydro_site, tpc)      
+            good_tpc = match_dates(tpc, good_hydro)
+
+        #plt.scatter(good_tpc, good_hydro)
+        #plt.show()  
+        
+            # if streamflow is not constant all the time
+            if not np.all(good_hydro==good_hydro[0]):    
+                # calculate monotonic correlation between hydrological data and tpc
+                # as a reference to judge their connection
+                if r_type==0:
+                    r[ct_site, ct_mode] = sci.stats.pearsonr(good_tpc, good_hydro)[0]
+                    p[ct_site, ct_mode] = sci.stats.pearsonr(good_tpc, good_hydro)[1]
+                elif r_type==1:  
+                    r[ct_site, ct_mode] = sci.stats.spearmanr(good_tpc, good_hydro)[0]
+                    p[ct_site, ct_mode] = sci.stats.spearmanr(good_tpc, good_hydro)[1]                
+                elif r_type==2:
+                    good_hydro = sci.stats.zscore(good_hydro)
+                    good_tpc = sci.stats.zscore(good_tpc)
+                    r[ct_site, ct_mode] = 1 - ( np.nansum(np.square(good_hydro - good_tpc))/np.nansum(np.square(good_tpc - np.nanmean(good_tpc))) )
+        
+    #indx_site_mode = ((np.abs(r) >= r_thrd).astype(int)).nonzero() 
+    #return r, p, indx_site_mode    
+    
+    indx_max_r_site = np.argmax(np.abs(r), axis=0)
+    r_temp = r[( indx_max_r_site, list(range(mode_num)) )]
+    if r_type != 2:
+        mode_out = (((np.abs(r_temp) >= r_thrd).astype(int)).nonzero())[0]
+    else:
+        mode_out = (((r_temp >= r_thrd).astype(int)).nonzero())[0]
+        
+    site_out = indx_max_r_site[mode_out]
+    r_out = r_temp[ (mode_out) ]
+    
+    return site_out, mode_out, r_out 
+
+
+def reof(stack: xr.DataArray, variance_threshold: float = 0.8, n_modes: int = 4) -> xr.Dataset:
+    """Function to perform rotated empirical othogonal function (eof) on a spatial timeseries
+
+    args:
+        stack (xr.DataArray): DataArray of spatial temporal values with coord order of (t,y,x)
+        variance_threshold(float, optional): optional fall back value to select number of eof
+            modes to use. Only used if n_modes is less than 1. default = 0.727
+        n_modes (int, optional): number of eof modes to use. default = 4
+
+    returns:
+        xr.Dataset: rotated eof dataset with spatial modes, temporal modes, and mean values
+            as variables
+        
+        list: explained variance (%)
+
+    """
+    # extract out some dimension shape information
+    shape3d = stack.shape
+    spatial_shape = shape3d[1:]
+    shape2d = (shape3d[0],np.prod(spatial_shape))
+
+    # flatten the data from [t,y,x] to [t,...]
+    da_flat = xr.DataArray(
+        stack.values.reshape(shape2d),
+        coords = [stack.time,np.arange(shape2d[1])],
+        dims=['time','space']
+    )
+    #logger.debug(da_flat)
+        
+    ## find the temporal mean for each pixel
+    center = da_flat.mean(dim='time')
+    
+    centered = da_flat - center
+               
     # get an eof solver object
     # explicitly set center to false since data is already
     #solver = Eof(centered,center=False)
     solver = Eof(centered,center=False)
 
     # check if the n_modes keyword is set to a realistic value
-    # if not get n_modes based on variance explained
+    # if not get n_modes based on variance explained    
+    # (Retain up to the mode that has cumulative explained variance higher that the threshold: 0.8)    
     if n_modes < 0:
-        n_modes = int((solver.varianceFraction().cumsum() < variance_threshold).sum())
-
+        #n_modes = int((solver.varianceFraction().cumsum() < variance_threshold).sum())
+        # Find the mode whose cumulative variance fraction >= the threshold
+        n_modes = int(np.argwhere(solver.varianceFraction().cumsum().values >= variance_threshold)[0]+1)
+        
     # calculate to spatial eof values
     eof_components = solver.eofs(neofs=n_modes).transpose()
+    
+    # get cumulative variance fractions of eof (up to the max. retained mode)
+    total_eof_var_frac = solver.varianceFraction(neigs=n_modes).cumsum().values[-1]
+
     # get the indices where the eof is valid data
     non_masked_idx = np.where(np.logical_not(np.isnan(eof_components[:,0])))[0]
 
@@ -86,17 +367,33 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
 
     # project the original time series data on the rotated eofs
     projected_pcs = np.dot(centered[:,non_masked_idx], rotated[non_masked_idx,:])
-
+       
+    # get variance of each rotated mode
+    rot_var = np.var(projected_pcs, axis=0)
+    # get cumulative variance of all rotated modes
+    total_rot_var = rot_var.cumsum()[-1]
+    # get variance fraction of each rotated mode
+    
+    rot_var_frac = ((rot_var/total_rot_var)*total_eof_var_frac)*100
+ 
+    
     # reshape the rotated eofs to a 3d array of [y,x,c]
     spatial_rotated = rotated.reshape(spatial_shape+(n_modes,))
+
+    
+    # sort modes based on variance fraction of REOF
+    indx_rot_var_frac_sort = np.expand_dims(((np.argsort(-1*rot_var_frac)).data), axis=0)        
+    projected_pcs = np.take_along_axis(projected_pcs,indx_rot_var_frac_sort,axis=1)
+    
+    indx_rot_var_frac_sort = np.expand_dims(indx_rot_var_frac_sort, axis=0)
+    spatial_rotated = np.take_along_axis(spatial_rotated,indx_rot_var_frac_sort,axis=2)
 
     # structure the spatial and temporal reof components in a Dataset
     reof_ds = xr.Dataset(
         {
             "spatial_modes": (["lat","lon","mode"],spatial_rotated),
             "temporal_modes":(["time","mode"],projected_pcs),
-            "center": (["lat","lon"],center.values.reshape(spatial_shape)),
-            "variance": (["mode"],solver.varianceFraction()[:n_modes])
+            "center": (["lat","lon"],center.values.reshape(spatial_shape))
         },
         coords = {
             "lon":(["lon"],stack.lon),
@@ -106,7 +403,7 @@ def reof(stack: xr.DataArray, variance_threshold: float = 0.727, n_modes: int = 
         }
     )
 
-    return reof_ds
+    return reof_ds, rot_var_frac[indx_rot_var_frac_sort]
 
 
 def _ortho_rotation(components: np.array, method: str = 'varimax', tol: float = 1e-6, max_iter: int = 100) -> np.array:
@@ -132,31 +429,99 @@ def _ortho_rotation(components: np.array, method: str = 'varimax', tol: float = 
     return np.dot(components, rotation_matrix)
 
 
-def get_streamflow(lon: float, lat: float) -> xr.DataArray:
-    """Function to get histroical streamflow data from the GeoGLOWS server
-    based on geographic coordinates
+# ----- Streamflow-related function -----
+def wrap_streamflow(lats: list, lons: list, forecast_opt:int) -> Tuple[xr.DataArray, list]:
+    """Function to get and wrap up streamflow data from the GeoGLOWS server at different geographic coordinates 
+    as one DataArray. Users now get to choose whether historical simulation, forecast stats, or forecast record 
+    will be retrieved. For the forecast cases, output will be the daily average.
+    
+    May add bias correction in the future???
 
     args:
-        lon (float): longitude value where to get streamflow data
-        lat (float): latitude value where to get streamflow data
+        lats (list): latitude values where to get streamflow data
+        lons (list): longitude values where to get streamflow data
+        forecast_opt (int): Option: 0: Historical simulation; 1: Forecast stats; 2: Forecast record
 
     returns:
         xr.DataArray: DataArray object of streamflow with datetime coordinates
     """
+    site_num = len(lats)
+    reaches = []
+    for ct_site in range(site_num):      
+        q, reach_id = get_streamflow(lats[ct_site], lons[ct_site], forecast_opt)
+        q["time"] = q["time"].dt.strftime("%Y-%m-%d")
+        if ct_site==0:
+            q_out = q.expand_dims(dim='site')
+        else:       
+            q_out = xr.concat( (q_out, q),dim='site' ) 
+        reaches.append(reach_id)
+      
+    # return the series as a xr.DataArray
+    return q_out, reaches
+
+
+def get_streamflow(lat: float, lon: float, forecast_opt:int) -> Tuple[xr.DataArray, int]:
+    """Function to get streamflow data from the GeoGLOWS server based on geographic coordinates.
+    Users now get to choose whether historical simulation, forecast stats, or forecast record 
+    will be retrieved. For the forecast cases, output will be the daily average.
+
+    May add bias correction in the future???
+
+    args:
+        lat (float): latitude value where to get streamflow data
+        lon (float): longitude value where to get streamflow data
+        forecast_opt (int): Option: 0: Historical simulation; 1: Forecast stats; 2: Forecast record
+
+    returns:
+        xr.DataArray: DataArray object of streamflow with datetime coordinates
+        int: reach id
+    """
     # ??? pass lat lon or do it by basin ???
     reach = streamflow.latlon_to_reach(lat,lon)
-    # send request for the streamflow data
-    q = streamflow.historic_simulation(reach['reach_id'])
+    # When I was using GEOGloWS over the Mississippi River, sometimes the output reachID is not neccessary 
+    # the reach of the given lat and lon. May be due to the spatial resolution of the model???
+    
+    if forecast_opt == 0:
+        # send request for the streamflow data
+        q = streamflow.historic_simulation(reach['reach_id'])
 
-    # rename column name to something not as verbose as 'streamflow_m^3/s'
-    q.columns = ["discharge"]
+        # rename column name to something not as verbose as 'streamflow_m^3/s'
+        q.columns = ["discharge"]
+        
+        # rename index and drop the timezone value
+        q.index.name = "time"
+        q.index = q.index.tz_localize(None)
 
-    # rename index and drop the timezone value
-    q.index.name = "time"
-    q.index = q.index.tz_localize(None)
+        # return the series as a xr.DataArray
+        return q.discharge.to_xarray(), reach['reach_id']        
+        
+    else:
+        # ----- Get the average of ensembles from GEOGloWS server and calculate their daily average -----
+        # -- send request to get forecasted streamflow --
+        # Forecast stats
+        if forecast_opt == 1:
+            init_q = streamflow.forecast_stats(reach['reach_id'])['flow_avg_m^3/s']
+        # Forecast record
+        elif forecast_opt == 2:
+            init_q = streamflow.forecast_records(reach['reach_id'])['streamflow_m^3/s']
+        date_list = init_q.index.map(lambda t: t.date())
+        uniq_date = date_list.unique()
+        uniq_date.name = 'time'
+        
+        # Calculate the averages by dates
+        q_temp = np.empty((len(uniq_date),))        
+        for ct_uniq_date in range(len(uniq_date)):            
+            q_temp[ct_uniq_date] = np.nanmean(init_q.to_numpy()[np.argwhere(date_list==uniq_date[ct_uniq_date])])
 
-    # return the series as a xr.DataArray
-    return q.discharge.to_xarray()
+        q = xr.DataArray(
+            data = q_temp,
+            dims=['time'],
+            coords=dict(
+                time = pd.to_datetime(uniq_date)
+            )                
+        )
+        q.name='discharge'        
+        return q, reach['reach_id']
 
 
 def match_dates(original: xr.DataArray, matching: xr.DataArray) -> xr.DataArray:
