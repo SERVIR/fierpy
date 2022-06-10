@@ -16,11 +16,15 @@ setup(name='fierpy',
     license='MIT',
     zip_safe=False,
     include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'fier = fierpy.fier_cli:main',
+        ]
+    },
     install_requires=[
         'numpy',
         'pandas',
         'xarray',
-        'scikit-learn>=0.24',
         'geoglows',
         'eofs',
         'netcdf4',
