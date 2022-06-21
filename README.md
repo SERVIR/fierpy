@@ -1,4 +1,9 @@
 # fierpy
+
+[![Python: 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![SERVIR: Global](https://img.shields.io/badge/SERVIR-Global-green)](https://servirglobal.net)
+
 Python implementation of the Forecasting Inundation Extents using REOF method
 
 Based off of the methods from [Chang et al., 2020](https://doi.org/10.1016/j.rse.2020.111732)
@@ -58,3 +63,14 @@ q_sel = fierpy.match_dates(q,ds.time)
 # apply polynomial to different modes to find best stats
 fit_test = fierpy.find_fits(reof_ds,q_sel,ds)
 ```
+
+
+## License and Distribution
+
+fierpy is distributed by SERVIR under the terms of the MIT License. See
+[LICENSE](https://github.com/SERVIR/fierpy/blob/master/LICENSE) in this directory for more information.
+
+## Privacy & Terms of Use
+
+fierpy abides to all of SERVIR's privacy and terms of use as described
+at [https://servirglobal.net/Privacy-Terms-of-Use](https://servirglobal.net/Privacy-Terms-of-Use).
